@@ -13,7 +13,7 @@ from keras.layers import Dropout, Activation
 from keras.models import Model,load_model
 from keras.utils.np_utils import to_categorical
 from keras.callbacks import TensorBoard
-from keras import optimizers, regularizers # 优化器，正则化项
+from keras import optimizers, regularizers 
 from keras.optimizers import SGD, Adam
 from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
@@ -70,8 +70,7 @@ with K.name_scope('myvgg'):
     momentum=0.95, decay=0.0, nesterov=False),metrics=['accuracy'])  
     model.summary()  
 
-#model.load_weights("weights-improvement-01-0.50.hdf5")
-# checkpoinghts-improvement-01-0.50.hdf5t
+
 filepath="weights/weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 callbacks_list = [checkpoint]
