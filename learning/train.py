@@ -53,20 +53,14 @@ if __name__ == "__main__":
     gamma = 0.1
     epsilon = 1
     batch_size = 100
-    #scale_subregion = float(3)/4
-    #scale_mask = float(1)/(scale_subregion*4)
-    # Pointer to where to store the last experience in the experience replay buffer,
-    #pdb.set_trace()
+
     h = np.zeros(1)
     # Each replay memory has a capacity of 100 experiences
     buffer_experience_replay = 1000
     # Init replay memories
-    #replay = []
     if os.path.exists('replay.npy'):
         repl = np.load('replay.npy',allow_pickle=True)
         replay = list(repl)
-#        print replay
-#        pdb.set_trace()
     else:
         replay = []
     #pdb.set_trace()
@@ -75,13 +69,11 @@ if __name__ == "__main__":
     ######## MODELS ########
     #pdb.set_trace()
     model_vgg_ex = myVGG()
-    #pdb.set_trace()
-#    tf.reset_default_graph()
+
 
     model_vgg = obtain_compiled_vgg_16(path_vgg)
 
-    #model_vgg_ex = myVGG()
-    #pdb.set_trace()
+
     if epochs_id == 0:
         model = get_array_of_q_networks_for_pascal("0")
     else:
@@ -90,33 +82,24 @@ if __name__ == "__main__":
     ######## LOAD IMAGE NAMES ########
     secret_names = np.array([load_images_names_in_data_set(path_secret)])
     cover_names = np.array([load_images_names_in_data_set(path_cover)])
-    #cover_images = get_all_images(path_cover)
-    #secret_images = get_all_images(path_secret)
+
     
-    #if len(secret_names)!=len(cover_names):
-    #    print 'error! secret images not equal cover images'
-    #
+
     for i in range(epochs_id, epochs_id + epochs):
         print '&'*30
         print 'epsilon',epsilon
         print 'epoch',i
-        #for j in range(len(secret_names[0])):
-        for j in range(3000):   
+        for j in range(len(secret_names[0])): 
             image_name = secret_names[0][j]
             print image_name
             image_cover = np.array(load_image(path_cover + cover_names[0][j]+'.jpg'))
             image_secret = np.array(load_image(path_secret + secret_names[0][j]+'.jpg'))
-            image_cover = misc.imresize(image_cover,(256,256))
-            image_secret = misc.imresize(image_secret, (256,256))
+            image_cover = misc.imresize(image_cover,(image_h,image_w))
+            image_secret = misc.imresize(image_secret, (image_h,image_w))
             image_noise = conceal_noise(image_secret) 
-            #image_noise = read_noise('000030') 
-            #noise_origi = np.array(image_noise)#*1.0/20
+
             noise_origi = image_noise
             last_loss = 300
-            #size = (256, 256)
-            #size = (256, 256)
-            #offset = (0,0)
-            #offset = (64,64)
             size = (128,128)
             offset = (random.randint(0,image_cover.shape[0]-128),random.randint(0,image_cover.shape[1]-128))
             history_vector = np.zeros([36])
@@ -128,9 +111,7 @@ if __name__ == "__main__":
             image_contain, image_roi, image_ROI, image_rev = get_container(image_cover, noise_origi, offset, size)
             #t1 = time.time()
             hider_loss = get_loss(image_secret,image_cover,image_contain,image_rev,size)
-            #pdb.set_trace()
-            #t2 = time.time()
-            #print 'time:',t2-t1
+
             class_loss = get_loss1(image_rev, model_vgg)
             new_loss =  hider_loss + class_loss
             last_loss = new_loss
@@ -138,8 +119,7 @@ if __name__ == "__main__":
             print '****************************new_loss', new_loss
             print 'class_loss ', class_loss
             print '\n'
-            #print image_roi.shape
-            #pdb.set_trace()
+
             state = get_state(image_ROI, history_vector, model_vgg_ex)
             
             if step > number_of_steps:
@@ -151,10 +131,6 @@ if __name__ == "__main__":
                 step += 1
             
             while (status == 1) & (step < number_of_steps):
-                #model = models[0]
-                #with tf.Session(graph=g4) as sess:
-                #    qval = model.predict(state.T, batch_size=1)
-                #pdb.set_trace()
                 qval = q_predict(model, state.T, path_model,1)
                 step += 1
                 # we force terminal action in case loss is smaller than *0.5*, to train faster the agent
@@ -165,18 +141,12 @@ if __name__ == "__main__":
                     action = random.randint(1, 10)
                 else:
                     action = (np.argmax(qval))+1
-                # terminal action
-                #and offset[0] >0 and offset[1] >0 and offset[0]+size[1]<256 and offset[1]+size[0] < 256
+
                 print 'action:***********',action
                 if action == 9:
-                    #size = int(size)
-                    #offset = int(offset)
-                    #hider_loss = get_loss(image_secret, image_cover,image_contain) * 1.0 / 10
                     image_contain, image_roi,image_ROI,image_rev = get_container(image_cover,noise_origi, offset, size)
-                #    t3 = time.time()
                     hider_loss = get_loss(image_secret,image_cover,image_contain,image_rev,size)
-                #    t4 = time.time()
-                #    print 'time:',t4-t3
+
                     class_loss = get_loss1(image_rev,model_vgg)
                     new_loss =  hider_loss + class_loss
                     reward = get_reward_trigger(new_loss)
@@ -297,12 +267,9 @@ if __name__ == "__main__":
                         #pdb.set_trace()
                         for memory in minibatch:
                             old_state, action, reward, new_state = memory
-                            #print 'action:****************',action
-                            #old_qval = q_predict(model,old_state.T,path_model,1)
                             old_qval = model.predict(old_state.T, batch_size=1)
                             print 'old_q****',np.argmax(old_qval),old_qval
                             print action,reward
-                            #newQ = q_predict(model, new_state.T, path_model,1)
                             newQ = model.predict(new_state.T, batch_size=1)
                             print 'newQ:****',np.argmax(newQ),newQ
 
@@ -332,7 +299,7 @@ if __name__ == "__main__":
                         print 'acc: ',hist.history['acc']
                         print 'loss: ',hist.history['loss']
                         model.save_weights('tmp_qnet.h5',overwrite=True)
-                    #models[0] = model
+                    
                     state = new_state
                 if action == 9:
                     status = 0
