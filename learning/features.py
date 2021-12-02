@@ -13,7 +13,7 @@ from keras.layers import Dropout, Activation
 from keras.models import Model,load_model
 from keras.utils.np_utils import to_categorical
 from keras.callbacks import TensorBoard
-from keras import optimizers, regularizers # 优化器，正则化项
+from keras import optimizers, regularizers 
 from keras.optimizers import SGD, Adam
 from keras.callbacks import ModelCheckpoint
 import cv2, numpy as np
@@ -26,7 +26,7 @@ import tensorflow as tf
 import pdb
 from vgg16 import *
 
-# ok
+
 def get_image_descriptor_for_image(image, model):
     im = cv2.resize(image, (224, 224)).astype(np.float32)
     #dim_ordering = K.image_dim_ordering()
@@ -34,55 +34,19 @@ def get_image_descriptor_for_image(image, model):
     if dim_ordering == 'th':
         # 'RGB'->'BGR'
         im = im[::-1, :, :]
-        # Zero-center by mean pixel
-#        im[0, :, :] -= 103.939
-#        im[1, :, :] -= 116.779
-##        im[2, :, :] -= 123.68
+
     else:
         # 'RGB'->'BGR'
         im = im[:, :, ::-1]
-        # Zero-center by mean pixel
-#        im[:, :, 0] -= 103.939
-#        im[:, :, 1] -= 116.779
-#        im[:, :, 2] -= 123.68
-    #im = im.transpose((2, 0, 1))
+
     im = np.expand_dims(im, axis=0)
     with tf.Session(graph=g2) as sess:
     	inputs = [K.learning_phase()] + model.inputs
     	_convout1_f = K.function(inputs, [model.layers[20].output])
     return _convout1_f([0] + [im])
 
-# ok
-'''
-def get_conv_image_descriptor_for_image(image, model):
-    im = cv2.resize(image, (224, 224)).astype(np.float32)
-    #dim_ordering = K.image_dim_ordering()
-    dim_ordering = 'th'
-    if dim_ordering == 'th':
-        # 'RGB'->'BGR'
-        im = im[::-1, :, :]
-        # Zero-center by mean pixel
-#        im[0, :, :] -= 103.939
-#        im[1, :, :] -= 116.779
-#        im[2, :, :] -= 123.68
-    else:
-        # 'RGB'->'BGR'
-        im = im[:, :, ::-1]
-        # Zero-center by mean pixel
-#        im[:, :, 0] -= 103.939
-#        im[:, :, 1] -= 116.779
-#        im[:, :, 2] -= 123.68
-    #print im.shape
-    #im = im.transpose((2, 0, 1))
-    im = np.expand_dims(im, axis=0)
-    #print im.shape
-    #pdb.set_trace()
-    #global graph1
-    with tf.Session(graph=graph1) as sess:
-      inputs = [K.learning_phase()] + model.inputs
-      _convout1_f = K.function(inputs, [model.layers[18].output])
-    return _convout1_f([0] + [im])
-'''
+
+
 def get_loss1(image, model):
     im = cv2.resize(image, (224, 224)).astype(np.float32)
     #dim_ordering = K.image_dim_ordering()
@@ -91,21 +55,14 @@ def get_loss1(image, model):
         # 'RGB'->'BGR'
         im = im[::-1, :, :]
         # Zero-center by mean pixel
-#        im[0, :, :] -= 103.939
-#        im[1, :, :] -= 116.779
-#        im[2, :, :] -= 123.68
+
     else:
         # 'RGB'->'BGR'
         im = im[:, :, ::-1]
-        # Zero-center by mean pixel
-#        im[:, :, 0] -= 103.939
-#        im[:, :, 1] -= 116.779
-#        im[:, :, 2] -= 123.68
-    #print im.shape
-    #im = im.transpose((2, 0, 1))
+
+
     im = np.expand_dims(im, axis=0)
-    #print im.shape
-    #pdb.set_trace()
+
     with tf.Session(graph=g2) as sess1:
         with g2.as_default():
             vgg_params =tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,scope='myvgg')
@@ -119,9 +76,9 @@ def get_loss1(image, model):
     else:
         return 25
     
-    #return _convout1_f([0] + [im])
 
-# ok
+
+
 def obtain_compiled_vgg_16(vgg_weights_path):
     global g2
     g2 = tf.Graph()
@@ -132,7 +89,7 @@ def obtain_compiled_vgg_16(vgg_weights_path):
             model.compile(optimizer=sgd, loss='categorical_crossentropy')
     return model
 
-# ok
+
 def vgg_16(weights_path=None):
     with K.name_scope('myvgg'):
         model = Sequential()  
