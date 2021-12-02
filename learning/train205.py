@@ -53,10 +53,7 @@ if __name__ == "__main__":
     gamma = 0.1
     epsilon = 1
     batch_size = 100
-    #scale_subregion = float(3)/4
-    #scale_mask = float(1)/(scale_subregion*4)
-    # Pointer to where to store the last experience in the experience replay buffer,
-    #pdb.set_trace()
+
     h = np.zeros(1)
     # Each replay memory has a capacity of 100 experiences
     buffer_experience_replay = 1000
@@ -65,8 +62,6 @@ if __name__ == "__main__":
     if os.path.exists('replay.npy'):
         repl = np.load('replay.npy',allow_pickle=True)
         replay = list(repl)
-#        print replay
-#        pdb.set_trace()
     else:
         replay = []
     #pdb.set_trace()
@@ -75,13 +70,11 @@ if __name__ == "__main__":
     ######## MODELS ########
     #pdb.set_trace()
     model_vgg_ex = myVGG()
-    #pdb.set_trace()
-#    tf.reset_default_graph()
+
 
     model_vgg = obtain_compiled_vgg_16(path_vgg)
 
-    #model_vgg_ex = myVGG()
-    #pdb.set_trace()
+
     if epochs_id == 0:
         model = get_array_of_q_networks_for_pascal("0")
     else:
@@ -90,18 +83,13 @@ if __name__ == "__main__":
     ######## LOAD IMAGE NAMES ########
     secret_names = np.array([load_images_names_in_data_set(path_secret)])
     cover_names = np.array([load_images_names_in_data_set(path_cover)])
-    #cover_images = get_all_images(path_cover)
-    #secret_images = get_all_images(path_secret)
-    
-    #if len(secret_names)!=len(cover_names):
-    #    print 'error! secret images not equal cover images'
+
     #
     for i in range(epochs_id, epochs_id + epochs):
         print '&'*30
         print 'epsilon',epsilon
         print 'epoch',i
-        #for j in range(len(secret_names[0])):
-        for j in range(3000):   
+        for j in range(len(secret_names[0])):
             image_name = secret_names[0][j]
             print image_name
             image_cover = np.array(load_image(path_cover + cover_names[0][j]+'.jpg'))
@@ -128,9 +116,7 @@ if __name__ == "__main__":
             image_contain, image_roi, image_ROI, image_rev = get_container(image_cover, noise_origi, offset, size)
             #t1 = time.time()
             hider_loss = get_loss(image_secret,image_cover,image_contain,image_rev,size)
-            #pdb.set_trace()
-            #t2 = time.time()
-            #print 'time:',t2-t1
+
             class_loss = get_loss1(image_rev, model_vgg)
             new_loss =  hider_loss + class_loss
             last_loss = new_loss
@@ -138,8 +124,7 @@ if __name__ == "__main__":
             print '****************************new_loss', new_loss
             print 'class_loss ', class_loss
             print '\n'
-            #print image_roi.shape
-            #pdb.set_trace()
+ 
             state = get_state(image_ROI, history_vector, model_vgg_ex)
             
             if step > number_of_steps:
@@ -151,10 +136,6 @@ if __name__ == "__main__":
                 step += 1
             
             while (status == 1) & (step < number_of_steps):
-                #model = models[0]
-                #with tf.Session(graph=g4) as sess:
-                #    qval = model.predict(state.T, batch_size=1)
-                #pdb.set_trace()
                 qval = q_predict(model, state.T, path_model,1)
                 step += 1
                 # we force terminal action in case loss is smaller than *0.5*, to train faster the agent
@@ -169,14 +150,8 @@ if __name__ == "__main__":
                 #and offset[0] >0 and offset[1] >0 and offset[0]+size[1]<256 and offset[1]+size[0] < 256
                 print 'action:***********',action
                 if action == 9:
-                    #size = int(size)
-                    #offset = int(offset)
-                    #hider_loss = get_loss(image_secret, image_cover,image_contain) * 1.0 / 10
                     image_contain, image_roi,image_ROI,image_rev = get_container(image_cover,noise_origi, offset, size)
-                #    t3 = time.time()
                     hider_loss = get_loss(image_secret,image_cover,image_contain,image_rev,size)
-                #    t4 = time.time()
-                #    print 'time:',t4-t3
                     class_loss = get_loss1(image_rev,model_vgg)
                     new_loss =  hider_loss + class_loss
                     reward = get_reward_trigger(new_loss)
@@ -196,8 +171,7 @@ if __name__ == "__main__":
                     draw.text((10,40),'offset= '+str(offset),fill=(255,0,0))
                     draw.text((10,50),'size='+str(size),fill=(255,0,0))
 
-                    #draw.text((offset[0]+size[0]/2,offset[1]+size[1]/2+1),str(new_loss),fill=(255,0,0))
-                    #draw.text((offset[0]+size[0]/2+10,offset[1]+size[1]/2+10),'action=5',fill=(255,0,0))                    
+\                 
                     background.save(path_testing_folder+image_name+'_'+str(i)+'_'+str(step)+'.jpg')  
                     step += 1
                 # movement action, we perform the crop of the corresponding subregion
