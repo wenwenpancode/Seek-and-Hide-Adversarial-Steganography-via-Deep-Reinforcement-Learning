@@ -66,8 +66,7 @@ def VGG16(include_top=True, weights='imagenet',
         x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
         x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
 
-        #x = Flatten(name='flatten')(x)
-        # any potential predecessors of `input_tensor`.
+
         if input_tensor is not None:
             inputs = get_source_inputs(input_tensor)
         else:
@@ -77,10 +76,7 @@ def VGG16(include_top=True, weights='imagenet',
     #    pdb.set_trace()
         # load weights
         model.load_weights('partvgg.h5')
-#    with K.name_scope('part_vgg'):
-#        model.save_weights('partvgg.h5')
-#    print(model.summary())
-#    print(model.get_weights()[0])
+
     return model
 
 
@@ -90,7 +86,7 @@ def myVGG():
     with graph1.as_default():
     	model = VGG16(include_top=False)
     return model
-#model = myVGG()
+
 
 def get_conv_image_descriptor_for_image(image, model):
     im = cv2.resize(image, (224, 224)).astype(np.float32)
