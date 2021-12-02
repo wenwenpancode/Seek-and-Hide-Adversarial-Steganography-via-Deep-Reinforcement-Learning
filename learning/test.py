@@ -50,10 +50,7 @@ if __name__ == "__main__":
     cover_names = np.array([load_images_names_in_data_set(path_cover)])
     alpha = 0.05   # bigger -> quicker; small -> accuracy
     number_of_steps = 50
-    #number_of_steps = 12
-    #scale_subregion = float(3)/4
-    #scale_mask = float(1)/(scale_subregion*4)
-    #alpha = 0.02
+
     for j in range(0,3000):
    # for j in range(len(secret_names[0])):
         image_name = secret_names[0][j]
@@ -86,9 +83,7 @@ if __name__ == "__main__":
 
         image_contain, image_roi, image_ROI,image_rev = get_container(image_cover, noise_origi, offset, size)
 
-        #pdb.set_trace()
-        #misc.imsave('image_secret.jpg',image_secret)
-        #misc.imsave('image_roi.jpg',image_roi)
+
         hider_loss = get_loss(image_secret,image_cover,image_contain,image_rev,size)
         class_loss = get_loss1(image_rev, model_vgg)
         new_loss =  hider_loss + class_loss
@@ -101,10 +96,7 @@ if __name__ == "__main__":
         draw.text((offset[0]+size[0]/2+1,offset[1]+size[1]/2+1),str(new_loss),fill=(255,0,0))
         background.save(path_testing_folder+image_name+'_'+str(step)+'.jpg')
 
-        # we run the agent if the maximum number of steps has not been reached and
-        # if the boolean
-        #while (step < number_of_steps) :
-            # we init history vector as we are going to find another object
+
         history_vector = np.zeros([36])
         state = get_state(image_ROI, history_vector, model_vgg_ex)
         status = 1
@@ -121,8 +113,6 @@ if __name__ == "__main__":
                 if action == 9:
                     status = 0
                     background =Image.open(path_cover+cover_names[0][j]+'.jpg').convert("RGB").resize((256,256))
-                    #background = Image.new('RGB', (image_cover.shape[1],image_cover.shape[0]), (255, 255, 255))
-                    #background = background_ori
                     draw = ImageDraw.Draw(background)
                     draw.rectangle((offset[0],offset[1],offset[0]+size[0],offset[1]+size[1]),outline='red')
                     draw.text((offset[0]+size[0]/2+1,offset[1]+size[1]/2+1),str(new_loss),fill=(255,0,0))
@@ -173,12 +163,11 @@ if __name__ == "__main__":
                         print '**************************new_loss', new_loss
                         print 'class_loss ', class_loss
                         print '\n'  
-                        #last_loss = new_loss
+ 
                         reward = get_reward_movement(last_loss, new_loss)
                         last_loss = new_loss
                         background = Image.open(path_cover+cover_names[0][j]+'.jpg').convert("RGB").resize((256,256))
-                        #background = Image.new('RGB', (image_cover.shape[1],image_cover.shape[0]), (255, 255, 255))
-                        #background = background_ori
+
                         draw = ImageDraw.Draw(background)
                         draw.rectangle((offset[0],offset[1],offset[0]+size[0],offset[1]+size[1]),outline='red')
                         draw.text((10,1),'offset='+str(offset),fill=(255,0,0))
