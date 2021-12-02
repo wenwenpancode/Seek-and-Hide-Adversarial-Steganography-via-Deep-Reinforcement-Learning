@@ -37,8 +37,7 @@ def img_seg(path, name):
 	    f.write(str(id-1) + '\t' +str(i)+ ' ' + '\t' + str(j) + '\n')
             j += 5
         i += 5
-    #f = open('location.txt',mode='w') 
-    print(id-1)
+
 
 
 def get_train_data(images_path, noise_path):
@@ -52,18 +51,13 @@ def get_train_data(images_path, noise_path):
     count = 0
     noise = cv2.imread(noise_path)
     noise = cv2.resize(noise, (224,224), interpolation=cv2.INTER_AREA)
-#    noise = cv2.cvtColor(noise, cv2.COLOR_BGR2RGB)
+
     for image_file in glob.glob(new_path):
         count += 1
         if count % 100 == 0:
             print('Load {} images.'.format(count))
         image = cv2.imread(image_file)
- #       image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #print noise
-        #print image
         container = image + noise*1.0/20
-        #print container
-        #exit()
         save_path = images_path + 'pos/' + str(count) + '_1.jpg'
         cv2.imwrite(save_path,container)
 
