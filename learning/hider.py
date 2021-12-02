@@ -12,8 +12,7 @@ def conceal_noise(secret_img):
     return noise
 	
 def get_loss(secret_img, cover_image,container_img, image_roi,size):
-#    image_roi = cv2.resize(image_roi, (256,256), interpolation=cv2.INTER_AREA) 
-#    print image_roi.shape
+
     loss = closs.calculate(secret_img, cover_image,container_img,image_roi,size)
     return loss
 
