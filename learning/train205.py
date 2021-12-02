@@ -101,10 +101,6 @@ if __name__ == "__main__":
             #noise_origi = np.array(image_noise)#*1.0/20
             noise_origi = image_noise
             last_loss = 300
-            #size = (256, 256)
-            #size = (256, 256)
-            #offset = (0,0)
-            #offset = (64,64)
             size = (128,128)
             offset = (random.randint(0,image_cover.shape[0]-128),random.randint(0,image_cover.shape[1]-128))
             history_vector = np.zeros([36])
@@ -306,7 +302,7 @@ if __name__ == "__main__":
                         print 'acc: ',hist.history['acc']
                         print 'loss: ',hist.history['loss']
                         model.save_weights('tmp_qnet.h5',overwrite=True)
-                    #models[0] = model
+
                     state = new_state
                 if action == 9:
                     status = 0
